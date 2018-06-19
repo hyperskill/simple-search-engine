@@ -2,4 +2,4 @@
 
 Project: Simple Search Engine
 
-Create the src directory and put your .java file(s) in it.
+Create the *src* directory and put your *.java* file(s) in it.
