@@ -3,12 +3,71 @@ package simpleSearchEngine;
 import java.util.*;
 
 class Main {
-
   public static void main(String args[]) {
     List<Person> persons = new ArrayList<>();
+
+    try {
+      persons = Util.getPersonsFromFile("pdata.txt");
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+
+
+    for (Person person : persons) {
+      Finder.addPerson(person);
+    }
+
     Scanner sc = new Scanner(System.in);
-    System.out.println("Enter persons data in format: first name | last name | email (optional). Each entry from a new line, delimit with spaces. To terminate enter /stop");
+    boolean cont = true;
+    while(cont) {
+      System.out.println("  === Menu ===");
+      System.out.println("  1. Find a person ");
+      System.out.println("  2. Print all people");
+      System.out.println("  0. Exit ");
+      int input = sc.nextInt();
+      switch(input) {
+          case 1:
+            System.out.println("Enter search term. To terminate enter /stop");
+            while(true) {
+              String term = sc.nextLine();
+              if (term.trim().equals("/stop")) break;
+
+              if (term != null && term.length() > 0) {
+
+              if (Finder.find(term.trim()) != null) {
+                  System.out.println("Found people: ");
+                  for (Person person : Finder.find(term)) {
+                      System.out.println(person.toString());
+                  }
+              } else {
+                  System.out.println("Not found");
+              }
+            }
+          }
+          break;
+
+          case 2:
+            for(Person p : persons) {
+              System.out.println(p.toString());
+            }
+          break;
+
+          case 0:
+            cont = false;
+            System.out.println("Bye!");
+            break;
+
+          default:
+            System.out.println("Incorrect option! Try again.");
+
+          }
+        }
+      }
+
+  private static List<Person> addPersonsFromCLI(Scanner sc){
+    List<Person> persons = new ArrayList<>();
     while(true) {
+      System.out.println("Enter persons data in format: first name | last name | email (optional). Each entry from a new line, delimit with spaces. To terminate enter /stop");
       String input = sc.nextLine();
       if (input.trim().equals("/stop")) break;
       if (input != null && input.length() > 0) {
@@ -24,25 +83,7 @@ class Main {
         }
       }
     }
-    for (Person person : persons) {
-      Finder.addPerson(person);
-    }
-
-    System.out.println("Enter search term. To terminate enter /stop");
-    while(true) {
-      String input = sc.nextLine();
-      if (input.trim().equals("/stop")) break;
-      if (input != null && input.length() > 0) {
-        if (Finder.find(input.trim()) != null) {
-            System.out.println("Found people: ");
-            for (Person person : Finder.find(input)) {
-                System.out.println(person.toString());
-            }
-        } else {
-            System.out.println("Not found");
-        }
-      }
-    }
+    return persons;
   }
 }
 
