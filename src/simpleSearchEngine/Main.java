@@ -24,7 +24,14 @@ class Main {
       System.out.println("  1. Find a person ");
       System.out.println("  2. Print all people");
       System.out.println("  0. Exit ");
-      int input = sc.nextInt();
+      String inputLine = sc.nextLine();
+      int input = -1;
+      try {
+        input = Integer.parseInt(inputLine);
+      } catch (Exception e) {
+        System.out.println("Only numeric options allowed.");
+      }
+
       switch(input) {
           case 1:
             System.out.println("Enter search term. To terminate enter /stop");
@@ -33,14 +40,15 @@ class Main {
               if (term.trim().equals("/stop")) break;
 
               if (term != null && term.length() > 0) {
-
-              if (Finder.find(term.trim()) != null) {
-                  System.out.println("Found people: ");
-                  for (Person person : Finder.find(term)) {
+                term = term.trim();
+              if (Finder.find(term) != null) {
+                  Set<Person> found = Finder.find(term);
+                  System.out.printf("Found %d people: %n", found.size());
+                  for (Person person : found) {
                       System.out.println(person.toString());
                   }
               } else {
-                  System.out.println("Not found");
+                  System.out.println("No matching people found.");
               }
             }
           }
@@ -58,12 +66,14 @@ class Main {
             break;
 
           default:
-            System.out.println("Incorrect option! Try again.");
+            System.out.println("Incorrect option. Try again.");
 
           }
         }
       }
 
+  /**
+  **/
   private static List<Person> addPersonsFromCLI(Scanner sc){
     List<Person> persons = new ArrayList<>();
     while(true) {
@@ -91,9 +101,9 @@ class Main {
 
     public Person(String firstName, String lastName, String email) {
 
-      if (firstName != null) this.firstName = firstName.trim();
-      if (lastName != null) this.lastName = lastName.trim();
-      if (email != null) this.email = email.trim();
+      if (firstName != null) this.firstName = firstName.replaceAll("\\p{C}", "?").trim();
+      if (lastName != null) this.lastName = lastName.replaceAll("\\p{C}", "?").trim();
+      if (email != null) this.email = email.replaceAll("\\p{C}", "?").trim();
 
     }
 
