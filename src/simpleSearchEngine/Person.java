@@ -9,7 +9,7 @@ public class Person {
     private String email;
 
     Person(String data) {
-        String[] items = data.split(" ");
+        String[] items = data.split(" +");
         if(items.length == 2){
             this.firstName = items[0];
             this.secondName = items[1];

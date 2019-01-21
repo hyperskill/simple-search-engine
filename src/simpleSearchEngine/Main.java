@@ -1,6 +1,8 @@
 package simpleSearchEngine;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
@@ -9,10 +11,11 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Main {
+    //X:\Programming\IdeaProjects\simple-search-engine\all.txt
     static Scanner scanner;
     public static void main(String[] args) {
         scanner = new Scanner(System.in).useDelimiter("\n");
-        List<Person> allPersons = getAllPersons();
+        List<Person> allPersons = getAllPersonsFromFile();
         int command;
         printMenu();
         while ((command = getCommand()) != 0){
@@ -28,6 +31,7 @@ public class Main {
             printMenu();
         }
         System.out.println("Bye!");
+        scanner.close();
         System.exit(0);
     }
 
@@ -88,16 +92,31 @@ public class Main {
     }
 
     private static List<Person> getAllPersonsFromFile(){
-        List<Person> allPersons = new ArrayList<>();
-        System.out.println("Enter path to file");
-        String path = scanner.next();
-        File dataFile = new File(path);
-        String lineData;
-        while ((lineData = scanner.next()) != null){
-            allPersons.add(new Person(lineData));
+        while (true){
+            List<Person> allPersons = new ArrayList<>();
+            System.out.println("Enter path to file");
+            String path = scanner.next();
+            File dataFile = new File(path);
+            try(FileReader fileReader = new FileReader(dataFile)){
+                Scanner scannerFile = new Scanner(fileReader).useDelimiter("\n");
+                String data;
+                while (scannerFile.hasNextLine()){
+                    data = scannerFile.nextLine().trim();
+                    //System.out.println(data);
+                    allPersons.add(new Person(data));
+                }
+                scannerFile.close();
+            }catch (FileNotFoundException e){
+                System.out.println("File not found. Please check path");
+                continue;
+            }catch (IOException e2){
+                System.out.println("ioexceprion " + e2.getMessage());
+                continue;
+            }
+            return allPersons;
         }
-        return allPersons;
     }
+
 
     private static void printAllPersons(List<Person> personList){
         personList.forEach(System.out :: println);
