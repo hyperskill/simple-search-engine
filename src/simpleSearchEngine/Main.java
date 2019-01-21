@@ -1,21 +1,34 @@
 package simpleSearchEngine;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main {
     static Scanner scanner;
     public static void main(String[] args) {
         scanner = new Scanner(System.in).useDelimiter("\n");
         List<Person> allPersons = getAllPersons();
-
-        System.out.println("Enter the number of search queries:");
-        int countQueries = scanner.nextInt();
-        if(allPersons.size() == 0 || countQueries < 0){
-            System.exit(0);
+        int command;
+        printMenu();
+        while ((command = getCommand()) != 0){
+            if (command == 2){
+                System.out.println("=== List of people ===");
+                printAllPersons(allPersons);
+                System.out.println();
+            }else if(command == 1){
+                processQuery(allPersons);
+            }else {
+                System.out.println("Incorrect option! Try again.");
+            }
+            printMenu();
         }
-        processQueries(allPersons, countQueries);
+        System.out.println("Bye!");
+        System.exit(0);
     }
 
     private static List<Person> getAllPersons(){
@@ -31,7 +44,7 @@ public class Main {
 
     private static void processQueries(List<Person> allPersons, int countQueries){
         for(int i = 0; i < countQueries; i++ ){
-            System.out.println("Enter data to search people:");
+            System.out.println("Enter a name or email to search all suitable people.");
             String targetData = scanner.next();
             String[] fields = targetData.split(" ");
             List<Person> founded = Searcher.search(allPersons, fields);
@@ -46,4 +59,48 @@ public class Main {
             System.out.println();
         }
     }
+
+    private static void processQuery(List<Person> allPersons){
+        processQueries(allPersons, 1);
+    }
+
+    private static void printMenu(){
+        System.out.println("=== Menu ===\n" +
+                "1. Find a person\n" +
+                "2. Print all people\n" +
+                "0. Exit");
+    }
+
+    private static int getCommand(){
+        while (true){
+            String commandLine = scanner.next();
+            Character ch;
+            if(commandLine.toCharArray().length != 1 || !Character.isDigit(commandLine.charAt(0))){
+                System.out.println("Please inset a number!");
+                printMenu();
+            }else if(Integer.parseInt(commandLine) >=0 && Integer.parseInt(commandLine) <= 2){
+                return Integer.parseInt(commandLine);
+            }else {
+                System.out.println("Incorrect option! Try again.");
+                printMenu();
+            }
+        }
+    }
+
+    private static List<Person> getAllPersonsFromFile(){
+        List<Person> allPersons = new ArrayList<>();
+        System.out.println("Enter path to file");
+        String path = scanner.next();
+        File dataFile = new File(path);
+        String lineData;
+        while ((lineData = scanner.next()) != null){
+            allPersons.add(new Person(lineData));
+        }
+        return allPersons;
+    }
+
+    private static void printAllPersons(List<Person> personList){
+        personList.forEach(System.out :: println);
+    }
+
 }
