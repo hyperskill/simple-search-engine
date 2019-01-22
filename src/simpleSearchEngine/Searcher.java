@@ -1,9 +1,9 @@
 package simpleSearchEngine;
 
-import com.sun.xml.internal.ws.api.ha.StickyFeature;
-
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by DIMA, on 18.01.2019
@@ -27,7 +27,6 @@ class Searcher {
         }
         List<Person> retrievedPersons = new ArrayList<>();
         for(Person p : persons){
-            boolean isFound = true;
             boolean[] blockedFields = {false, false, false};
             int countBlockedFields = 0;
             for(String s : data){
@@ -52,4 +51,52 @@ class Searcher {
         if(!blocked[2] && p.getEmail() != null && p.getEmail().equalsIgnoreCase(data))return 2;
         return -1;
     }
+
+    private static List<Integer> getIndexes (Map<String, List<Integer>> invertedIndexes, String field){
+        for(Map.Entry<String, List<Integer>> entry : invertedIndexes.entrySet()){
+            if(field.equalsIgnoreCase(entry.getKey())){
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    static List<Integer> retainAllIndexedList(Map<String, List<Integer>> invertedIndexes, String data){
+        List<Integer> first;
+        if(data == null) {
+            System.out.println("No data");
+            return null;
+        }
+        String[] fields = data.split(" +");
+        if(fields.length == 0){
+            System.out.println("You insert only spaces");
+            return null;
+        }
+
+        if(getIndexes(invertedIndexes, fields[0]) == null){
+            return null;
+        }
+        first = new ArrayList<>(getIndexes(invertedIndexes, fields[0]));
+        //System.out.println(first);
+        //List<Integer> usedIndexes = new ArrayList<>(first);
+
+
+        for(int i = 1; i < fields.length; i++){
+            if(getIndexes(invertedIndexes, fields[i]) == null){
+                return null;
+            }
+            List<Integer> nextList = new ArrayList<>(getIndexes(invertedIndexes, fields[i]));
+            //System.out.println(nextList);
+            //nextList.removeAll(usedIndexes);
+            //usedIndexes.addAll(nextList);
+            first.retainAll(nextList);
+        }
+        //delete duplicates
+        first = new ArrayList<>(new HashSet<>(first));
+        return first;
+    }
+
+
+
+
 }

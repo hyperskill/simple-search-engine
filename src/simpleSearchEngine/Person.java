@@ -3,7 +3,7 @@ package simpleSearchEngine;
 /**
  * Created by DIMA, on 17.01.2019
  */
-public class Person {
+class Person {
     private String firstName;
     private String secondName;
     private String email;

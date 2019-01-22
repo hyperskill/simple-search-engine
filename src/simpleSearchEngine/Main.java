@@ -1,125 +1,60 @@
 package simpleSearchEngine;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class Main {
     //X:\Programming\IdeaProjects\simple-search-engine\all.txt
-    static Scanner scanner;
+    private static Scanner scanner;
     public static void main(String[] args) {
         scanner = new Scanner(System.in).useDelimiter("\n");
-        List<Person> allPersons = getAllPersonsFromFile();
+        List<Person> allPersons = PersonsGetter.getAllPersonsFromFile(scanner);
+        Map<String, List<Integer>> invertedIndex = InvertedIndex.buildInvertedIndex(allPersons);
+        //InvertedIndex.printInvertedIndexes(invertedIndex);
+        //System.out.println("======== Long Indexes ================");
+        //InvertedIndex.printOnlyLongInvertedIndexes(invertedIndex);
         int command;
-        printMenu();
+        Printer.printMenu();
         while ((command = getCommand()) != 0){
             if (command == 2){
                 System.out.println("=== List of people ===");
-                printAllPersons(allPersons);
+                Printer.printAllPersons(allPersons);
                 System.out.println();
             }else if(command == 1){
-                processQuery(allPersons);
+                Processor.processQueries(allPersons, invertedIndex, scanner);
             }else {
                 System.out.println("Incorrect option! Try again.");
+                continue;
             }
-            printMenu();
+            Printer.printMenu();
         }
         System.out.println("Bye!");
         scanner.close();
         System.exit(0);
     }
 
-    private static List<Person> getAllPersons(){
-        List<Person> allPersons = new ArrayList<>();
-        System.out.println("Enter the number of people:");
-        int countPeople = scanner.nextInt();
-        System.out.println("Enter all people:");
-        for(int i = 0; i < countPeople; i++){
-            allPersons.add(new Person(scanner.next()));
-        }
-        return allPersons;
-    }
-
-    private static void processQueries(List<Person> allPersons, int countQueries){
-        for(int i = 0; i < countQueries; i++ ){
-            System.out.println("Enter a name or email to search all suitable people.");
-            String targetData = scanner.next();
-            String[] fields = targetData.split(" ");
-            List<Person> founded = Searcher.search(allPersons, fields);
-            System.out.println("Found people:");
-            if(founded.size() > 0){
-                for(Person p : founded){
-                    System.out.println(p);
-                }
-            }else {
-                System.out.println("For query: " + targetData + " nothing was found");
-            }
-            System.out.println();
-        }
-    }
-
-    private static void processQuery(List<Person> allPersons){
-        processQueries(allPersons, 1);
-    }
-
-    private static void printMenu(){
-        System.out.println("=== Menu ===\n" +
-                "1. Find a person\n" +
-                "2. Print all people\n" +
-                "0. Exit");
-    }
-
     private static int getCommand(){
+        //Scanner scannerCommand = new Scanner(System.in);
         while (true){
             String commandLine = scanner.next();
-            Character ch;
             if(commandLine.toCharArray().length != 1 || !Character.isDigit(commandLine.charAt(0))){
                 System.out.println("Please inset a number!");
-                printMenu();
+                Printer.printMenu();
             }else if(Integer.parseInt(commandLine) >=0 && Integer.parseInt(commandLine) <= 2){
+                //scanner.close();
                 return Integer.parseInt(commandLine);
             }else {
                 System.out.println("Incorrect option! Try again.");
-                printMenu();
+                Printer.printMenu();
             }
         }
     }
 
-    private static List<Person> getAllPersonsFromFile(){
-        while (true){
-            List<Person> allPersons = new ArrayList<>();
-            System.out.println("Enter path to file");
-            String path = scanner.next();
-            File dataFile = new File(path);
-            try(FileReader fileReader = new FileReader(dataFile)){
-                Scanner scannerFile = new Scanner(fileReader).useDelimiter("\n");
-                String data;
-                while (scannerFile.hasNextLine()){
-                    data = scannerFile.nextLine().trim();
-                    //System.out.println(data);
-                    allPersons.add(new Person(data));
-                }
-                scannerFile.close();
-            }catch (FileNotFoundException e){
-                System.out.println("File not found. Please check path");
-                continue;
-            }catch (IOException e2){
-                System.out.println("ioexceprion " + e2.getMessage());
-                continue;
-            }
-            return allPersons;
-        }
-    }
 
 
-    private static void printAllPersons(List<Person> personList){
-        personList.forEach(System.out :: println);
-    }
+
+
+
 
 }
