@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by DIMA, on 18.01.2019
@@ -61,8 +62,7 @@ class Searcher {
         return null;
     }
 
-    static List<Integer> retainAllIndexedList(Map<String, List<Integer>> invertedIndexes, String data){
-        List<Integer> first;
+    static List<Integer> getResultIndexedList(Map<String, List<Integer>> invertedIndexes, String data, Mode mode){
         if(data == null) {
             System.out.println("No data");
             return null;
@@ -72,27 +72,39 @@ class Searcher {
             System.out.println("You insert only spaces");
             return null;
         }
-
         if(getIndexes(invertedIndexes, fields[0]) == null){
             return null;
         }
-        first = new ArrayList<>(getIndexes(invertedIndexes, fields[0]));
-        //System.out.println(first);
-        //List<Integer> usedIndexes = new ArrayList<>(first);
-
+        List<Integer> first = new ArrayList<>(getIndexes(invertedIndexes, fields[0]));
 
         for(int i = 1; i < fields.length; i++){
+            List<Integer> nextList;
             if(getIndexes(invertedIndexes, fields[i]) == null){
-                return null;
+                if(mode.name().equalsIgnoreCase("ALL")){
+                    return null;
+                }else {
+                    nextList = new ArrayList<>();
+                }
+
+            }else {
+                nextList = new ArrayList<>(getIndexes(invertedIndexes, fields[i]));
             }
-            List<Integer> nextList = new ArrayList<>(getIndexes(invertedIndexes, fields[i]));
-            //System.out.println(nextList);
-            //nextList.removeAll(usedIndexes);
-            //usedIndexes.addAll(nextList);
-            first.retainAll(nextList);
+
+            if(mode.name().equalsIgnoreCase("ALL")){
+                first.retainAll(nextList);
+            }else {
+                first.addAll(nextList);
+            }
+
         }
         //delete duplicates
         first = new ArrayList<>(new HashSet<>(first));
+        if(mode.name().equalsIgnoreCase("NONE")){
+           List<Integer> listAllIndexes = invertedIndexes.values().stream().flatMap(List::stream).collect(Collectors.toList());
+           listAllIndexes = new ArrayList<>(new HashSet<>(listAllIndexes));
+           listAllIndexes.removeAll(first);
+           return listAllIndexes;
+        }
         return first;
     }
 
