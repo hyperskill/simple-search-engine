@@ -1,6 +1,7 @@
 package simpleSearchEngine;
 
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 public class Main {
 
@@ -57,7 +58,7 @@ public class Main {
             switch (inp.nextInt()) {
                 case 1: searchFunc(dict);
                     break;
-                case 2: printAll(dict);
+                case 2: printAll.accept(dict);
                     break;
                 case 0: System.exit(0);
                     break;
@@ -68,13 +69,9 @@ public class Main {
         }
     }
 
-    /**
-     * subroutine for print out all elements of array
-     * @param arr for print out all it's elements with index
-     */
-    private static void printAll(String[] arr){
+    private static Consumer<String[]> printAll = (arr)-> {
         for (int i = 0; i < arr.length; i++){
             System.out.println((i + 1) + ") " + arr[i]);
         }
-    }
+    };
 }
