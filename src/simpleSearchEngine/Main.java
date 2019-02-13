@@ -1,23 +1,28 @@
 package simpleSearchEngine;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.function.Consumer;
 
 public class Main {
 
-    private static String[] dict;
+    private static Object[] dictObj;
 
     static {
         try {
-            dict = fileToArray();
+            dictObj = fileToArray();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+    private static String[] dict = (String[]) dictObj[0];
+    private static String[] indDict = (String[]) dictObj[1];
 
     public static void main(String[] args) {
+        invertedIndex(dict, indDict);
         mainMenu();
     }
 
@@ -98,11 +103,24 @@ public class Main {
      * @return dict array that contains all people from file
      * @throws IOException
      */
-    private static String[] fileToArray() throws IOException {
+    private static Object[] fileToArray() throws IOException {
         File testFile;
         BufferedReader readFile;
         String[] dict = new String[50];
+        String[] indexDict = new String[dict.length * 2];
         int counter = 0;
+        try {
+            testFile = new File("D:/simple-search-engine/src/simpleSearchEngine/testcase.txt");
+            Scanner input = new Scanner(testFile);
+            while (input.hasNext()){
+                String word = input.next();
+                indexDict[counter] = word;
+                counter++;
+            }
+        } catch (FileNotFoundException f){
+            System.out.print("Fole not found!!!");
+        }
+        counter = 0;
         try {
             testFile = new File("D:/simple-search-engine/src/simpleSearchEngine/testcase.txt");
             readFile = new BufferedReader(new FileReader(testFile));
@@ -115,6 +133,40 @@ public class Main {
         } catch (FileNotFoundException f) {
             System.out.println("file not found!!!");
         }
-            return dict;
+        Object[] obj = new Object[2];
+        obj[0] = dict;
+        obj[1] = indexDict;
+        return obj;
+    }
+
+    /**
+     * Fix this Inverted index MAYBE SOME MAGIC WILL HELP :(
+     * @param arr1 dictionary
+     * @param arr2 dictionary of tokens for search in arr1
+     */
+    private static void invertedIndex(String[] arr1, String[] arr2){
+        HashMap<String, int[]> invInd = new HashMap<>();
+        int[] temp = new int[2];
+        int count = 0;
+        for(int j = 0; j < arr1.length; j++){
+            for(int i = 0; i < arr2.length; i++){
+                if(arr1[j].toLowerCase().contains(arr2[i].toLowerCase())){
+                    temp[count] = j;
+                    count++;
+                }
+            }
+            invInd.put(arr1[j], temp);
+            count = 0;
+            temp = new int[2];
+        }
+
+        for (String k: invInd.keySet()) {
+            System.out.print("Key: " + k + "   Value: ");
+            int[] integers = invInd.get(k);
+            for (int i = 0; i < integers.length; i++){
+                System.out.print(integers[i] + ", ");
+                }
+            System.out.println();
+        }
     }
 }
